@@ -1,6 +1,11 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flash_chat/constants.dart';
 import 'package:flash_chat/screens/RoundedButton.dart';
+import 'package:flash_chat/screens/chat_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+
 
 class RegistrationScreen extends StatefulWidget {
   static const String id = 'registration_screen';
@@ -10,6 +15,19 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
+  final _auth = FirebaseAuth.instance;
+  String email;
+  String password;
+
+  @override
+  void initState(){
+    super.initState();
+     Firebase.initializeApp().whenComplete(() {
+      print("completed");
+      setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,8 +49,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               height: 48.0,
             ),
             TextField(
+              keyboardType: TextInputType.emailAddress,
               onChanged: (value) {
-                //Do something with the user input.
+                email = value;
               },
               decoration:
                   NewTextFieldDecoration.copyWith(hintText: "Enter your email"),
@@ -41,8 +60,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               height: 8.0,
             ),
             TextField(
+              obscureText: true,
               onChanged: (value) {
-                //Do something with the user input.
+                password = value;
               },
               decoration: NewTextFieldDecoration.copyWith(
                   hintText: "Enter your Password"),
@@ -53,11 +73,21 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             RoundedButton(
                 title: 'Registration',
                 colour: Colors.blueAccent,
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => RegistrationScreen()));
+                onPressed: () async {
+                  // print(email);
+                  // print(password);
+                  try {
+                    final newUser = await _auth.createUserWithEmailAndPassword(
+                        email: email, password: password);
+                    if (newUser != null) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ChatScreen()));
+                    }
+                  } catch (e) {
+                    print(e);
+                  }
                 }),
           ],
         ),

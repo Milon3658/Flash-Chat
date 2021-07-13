@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flash_chat/constants.dart';
 import 'package:flash_chat/screens/RoundedButton.dart';
+import 'package:flash_chat/screens/chat_screen.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -8,6 +10,10 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _auth = FirebaseAuth.instance;
+  String email;
+  String password;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,30 +35,41 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 48.0,
             ),
             TextField(
+              keyboardType: TextInputType.emailAddress,
               onChanged: (value) {
-                //Do something with the user input.
+                email = value;
               },
-              decoration: NewTextFieldDecoration.copyWith(hintText: "Enter your Email"),
+              decoration:
+              NewTextFieldDecoration.copyWith(hintText: "Enter your Email"),
             ),
             SizedBox(
               height: 8.0,
             ),
             TextField(
-              onChanged: (value) {
-                //Do something with the user input.
-              },
-              decoration: NewTextFieldDecoration.copyWith(hintText: "Enter your password")
-            ),
+                obscureText: true,
+                onChanged: (value) {
+                  password = value;
+                },
+                decoration: NewTextFieldDecoration.copyWith(
+                    hintText: "Enter your password")),
             SizedBox(
               height: 24.0,
             ),
             RoundedButton(
                 title: 'Log in',
                 colour: Colors.lightBlueAccent,
-                onPressed:() {
-                  Navigator.push(context,
-                      MaterialPageRoute(
-                          builder: (context) => LoginScreen()));
+                onPressed: () {
+                  final user = _auth.signInWithEmailAndPassword(
+                      email: email, password: password);
+                  try {
+                    if (user != null) {
+                      Navigator.push(context,
+                          MaterialPageRoute(
+                              builder: (context) => ChatScreen()));
+                    }
+                  }catch(e){
+                    print(e);
+                  }
                 }),
           ],
         ),
